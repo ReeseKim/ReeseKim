@@ -1,0 +1,81 @@
+package practice;
+
+import java.util.*;
+
+public class BinaryGraph {
+	
+	public static void print(boolean s){
+		if(s == true) System.out.println("YES");
+		else System.out.println("NO");
+	}
+	
+	public static void dfs(ArrayList<Integer>[] a, int[] chk, int node, int color){
+		chk[node] = color;
+		int connectedNode;
+		for(int i=0; i<a[node].size(); i++){
+			connectedNode = a[node].get(i);
+			if(chk[connectedNode] == 0){
+				dfs(a, chk, connectedNode, 3-color);
+			}
+		}
+	}
+	
+	public static void main(String[] args) {
+
+		Scanner sc = new Scanner(System.in);
+		int cnt = sc.nextInt();
+		
+		while(cnt-- > 0){
+			
+			int n = sc.nextInt();
+			int v = sc.nextInt();
+			boolean result = true;
+			
+			ArrayList<Integer>[] a = (ArrayList<Integer>[]) new ArrayList[n+1];
+			int[] chk;	// 0:not yet, 1:A group, 2:B group
+			
+			chk = new int[n+1];
+
+			for(int i=1; i<=n; i++){
+				chk[i] = 0;
+                a[i] = new ArrayList<Integer>();
+			}
+			
+			for(int i=0; i<v; i++){
+				int s = sc.nextInt();
+				int e = sc.nextInt();
+				a[s].add(e);
+				a[e].add(s);
+			}
+			
+			for( int i=1; i<=n; i++){
+				if( chk[i] == 0 ){
+					dfs(a, chk, i, 1);
+				}
+			}
+			
+			for( int i=1; i<=n; i++){
+				for( int j : a[i] ){		// for j=0; j<a.size; j++ 하면 안됨. a[i]에 1부터 차례로 있는게 아님. 
+					if(chk[i] == chk[j]){
+						result = false;
+					}
+				}
+			}
+			
+			print(result);
+			
+		}
+	}
+}
+
+/*
+2
+3 2
+1 3
+2 3
+4 4
+1 2
+2 3
+3 4
+4 2
+*/
