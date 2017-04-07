@@ -1,0 +1,103 @@
+//문제 : https://www.acmicpc.net/problem/7569
+
+package practice;
+
+import java.util.*;
+
+class Tomato {
+	// 좌표정보를 가지고 있어야 한다. 
+	
+	int x;
+	int y;
+	int z;
+	int day;
+	
+	Tomato(int x, int y, int z, int day){
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.day = day;
+	}
+	
+}
+
+public class FillTomato {
+
+	public static void print(String s){
+		System.out.println(s);
+	}
+
+	static int[] dx = { 1, -1, 0, 0, 0, 0 };
+	static int[] dy = { 0, 0, 1, -1, 0, 0 };
+	static int[] dz = { 0, 0, 0, 0, 1, -1 };
+	
+	public static void main(String[] args) {
+		
+		Scanner sc = new Scanner(System.in);
+
+		int[][][] a;
+		Queue<Tomato> q = new LinkedList<Tomato>();
+		int minDay = -1;
+		
+		int m = sc.nextInt();
+		int n = sc.nextInt();
+		int h = sc.nextInt();
+		
+		a = new int[m][n][h];
+
+		for(int k=0; k<h; k++){
+			for(int j=0; j<n; j++){
+				for(int i=0; i<m; i++){
+					a[i][j][k] = sc.nextInt();
+					
+					if(a[i][j][k] == 1){
+						q.add( new Tomato(i, j, k, 0) );
+					}
+				}
+			}
+		}
+		
+		while(!q.isEmpty()){
+			Tomato to = q.poll();
+			int x = to.x;
+			int y = to.y;
+			int z = to.z;
+			int d = to.day;
+			
+			for( int i=0; i<6; i++ ){
+
+				int nx = x + dx[i];
+				int ny = y + dy[i]; 
+				int nz = z + dz[i];
+				
+				if( nx>=0 && ny>=0 && nz>=0 && nx<m && ny<n && nz<h ){
+					if( a[nx][ny][nz] == 0 ){
+						q.add( new Tomato(nx, ny, nz, d+1) );
+						a[nx][ny][nz] = 1;
+						minDay = ( minDay > (d+1) ) ? minDay : d+1;
+					}
+				}
+			}
+		}
+
+		for(int k=0; k<h; k++){
+			for(int j=0; j<n; j++){
+				for(int i=0; i<m; i++){
+					//System.out.print(a[i][j][k]+" ");
+					if( a[i][j][k] == 0 ){
+						print("-1");
+						return;
+					}
+				}
+			}
+		}
+		
+		print(minDay+"");
+		
+	}
+}
+
+/*5 3 1
+-1 -1 0 0 0
+-1 -1 0 1 1
+0 0 0 1 1*/
