@@ -1,0 +1,181 @@
+//https://www.acmicpc.net/problem/2636
+
+package practice;
+
+import java.util.*;
+
+class Ches{
+	    int x;
+	    int y;
+	    int day;
+	    Ches(int x, int y) {
+	        this.x = x;
+	        this.y = y;
+	    }
+	    Ches(int x, int y, int day) {
+	        this.x = x;
+	        this.y = y;
+	        this.day = day;
+	    }
+}
+
+public class Cheese {
+
+	static int dx[] = {1, -1, 0, 0};
+	static int dy[] = {0, 0, 1, -1};
+
+	public static Ches hole(int[][] a, int[][] c, int x, int y, int n, int m){
+		
+		Queue<Ches> q = new LinkedList<Ches>();
+		Ches cheese = new Ches(x,y);
+		q.add(cheese);
+		//boolean chk = true;
+		while(!q.isEmpty()){
+			Ches p = q.poll();
+			for(int i=0; i<4; i++){
+				int x2 = p.x+dx[i];
+				int y2 = p.y+dy[i];
+				if(x2==0 || y2==0 || x2==n-1 || y2==m-1){
+					//chk = false;
+					return null;
+				}
+				else if( x2 > 0 && x2 < n-1 && y2 > 0 && y2 < m-1  && a[x2][y2] == 0 && c[x2][y2]==0){
+					//System.out.println(x2 + "," + y2);
+					c[x2][y2] = 1;
+					q.add(new Ches(x2,y2));
+				}
+			}
+		}
+		
+		return cheese;
+	}
+	
+	public static boolean check( int[][] a, int x, int y , int day){
+		for(int i=0; i<4; i++){
+			if(a[x+dx[i]][y+dy[i]] == 0 || a[x+dx[i]][y+dy[i]] == day-1)
+				return true;
+		}
+		return false;
+	}
+	
+	public static void bfs( int[][] a, int[][] a_copy, int b[][] , Queue<Ches> q, int day){
+		
+		int n = a.length;
+		int m = a[0].length;
+		
+		while(!q.isEmpty()){
+			Ches p = q.poll();
+			a[p.x][p.y] = day; // 2, 3, ...
+			a_copy[p.x][p.y] = 0; 
+			b[p.x][p.y] = 1;
+			for(int k=0; k<4; k++){
+				int x = p.x+dx[k];
+				int y = p.y+dy[k];
+				if( x >= 0 && x < n && y >= 0 && y < m  && a[x][y] == 1 
+						&& b[x][y] == 0 && check(a, x, y, day)){
+					q.add( new Ches(x, y, day) );
+				}
+			}
+		}
+	}
+	
+	
+	public static void main(String[] args) {
+		
+		Scanner sc = new Scanner(System.in);
+		int n = sc.nextInt();
+		int m = sc.nextInt();
+		int [][] a = new int[n][m];
+		int [][] a_copy = new int[n][m];
+		int [][] b = new int[n][m];
+		int a_cnt = 0;
+		int b_cnt = 0;
+		
+		sc.nextLine();
+		for( int i=0; i<n; i++){
+			String s = sc.nextLine();
+			for(int j=0; j<m; j++){
+				a[i][j] = s.charAt(2*j) - '0';
+				a_copy[i][j] = a[i][j];
+				if( a[i][j] == 1 )
+					a_cnt++;
+			}
+		}
+		
+		
+		Queue<Ches> q = new LinkedList<Ches>();
+		int d = 3;
+		while(b_cnt < a_cnt){
+
+			b_cnt = 0;
+			for( int i=0; i<n; i++){
+				for(int j=0; j<m; j++){
+					if( a[i][j] == 0 ){
+						int [][] c = new int[n][m];
+						Ches cheese = hole(a_copy,c,i,j,n,m);
+						if( cheese != null ){
+							a[cheese.x][cheese.y] = -1;
+						}
+					}
+				}
+			}
+
+			for(int i=0; i<n; i++){
+				for(int j=0; j<m; j++){
+					
+					if( a[i][j] == 1 && check(a, i, j, d) && b[i][j] == 0 )
+					{
+						q.add( new Ches(i,j) );
+						bfs(a, a_copy, b, q, d);
+					}
+				}
+			}
+			
+			for(int i=0; i<n; i++){				
+				for(int j=0; j<m; j++){
+					if(a[i][j] == -1)
+						a[i][j] = 0;
+				}
+			}
+			for(int i=0; i<n; i++){
+				for(int j=0; j<m; j++){
+					if( b[i][j] == 1 )
+						b_cnt++;
+				}
+			}
+			d++;
+		}
+
+		int cnt = 0;
+		for(int i=0; i<n; i++){				
+			for(int j=0; j<m; j++){
+				if(a[i][j] == d-1)
+					cnt++;
+			
+			}
+		}
+
+		System.out.println(d-3+"\n"+cnt);
+	
+	}
+
+}
+
+
+
+/*
+13 12
+0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 1 0 0 0
+0 1 1 1 0 0 0 1 1 0 0 0
+0 1 1 1 1 1 1 0 0 0 0 0
+0 1 1 1 1 1 0 1 1 0 0 0
+0 1 1 1 1 0 0 1 1 0 0 0
+0 0 1 1 0 0 0 1 1 0 0 0
+0 0 1 1 1 1 1 1 1 0 0 0
+0 0 1 1 1 1 1 1 1 0 0 0
+0 0 1 1 1 1 1 1 1 0 0 0
+0 0 1 1 1 1 1 1 1 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0
+*/
